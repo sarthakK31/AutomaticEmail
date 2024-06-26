@@ -17,17 +17,6 @@ const connection = new IORedis({
 
 const emailQueue = new Queue('emailQueue', { connection });
 
-app.get('/oauth2callback', async (req, res) => {
-  const gmailClient = await authenticateGmail();
-  // const outlookClient = await authenticateOutlook();
-
-  // Add a job to the queue
-  emailQueue.add('processEmail', { gmailClient });
-
-  res.send('Authenticated!');
-});
-
-
 new Worker('emailQueue', async (job) => {
   const { gmailClient } = job.data;
 
@@ -44,6 +33,37 @@ new Worker('emailQueue', async (job) => {
   }
 
 }, { connection });
+
+
+async function readEmails(auth) {
+  // Implement function to read emails from the respective client
+  const gmail = google.gmail({ version: 'v1', auth });
+  const res = await gmail.users.messages.list({ userId: 'me', labelIds: "UNREAD", maxResults: 1 });
+  const messages = res.data.messages || [];
+  const emails = await gmail.users.messages.get({ userId: 'me', id: messages[0].id })
+
+  const data = {
+    subject: emails.data.payload.headers.filter((t) => t.name == "Subject")[0].value,
+    body: emails.data.snippet
+  }
+
+  return data;
+}
+
+app.get('/oauth2callback', async (req, res) => {
+  const gmailClient = await authenticateGmail();
+  // const outlookClient = await authenticateOutlook();
+
+  // Add a job to the queue
+  emailQueue.add('processEmail', { gmailClient });
+
+  res.send('Authenticated!');
+});
+
+app.get("/read", async (req, res) => {
+  const auth = await authenticateGmail();
+  res.end(JSON.stringify(await readEmails(auth)))
+});
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
