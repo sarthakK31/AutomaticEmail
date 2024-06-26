@@ -1,0 +1,24 @@
+{
+  "name": "automaticemail",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "@microsoft/microsoft-graph-types": "^2.40.0",
+    "body-parser": "^1.20.2",
+    "bullmq": "^5.8.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "googleapis": "^140.0.0",
+    "msal-node": "^0.0.1-security",
+    "openai": "^4.52.1",
+    "redis": "^4.6.14"
+  }
+}
